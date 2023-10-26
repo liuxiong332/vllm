@@ -2,7 +2,9 @@
 # https://github.com/skypilot-org/skypilot/blob/86dc0f6283a335e4aa37b3c10716f90999f48ab6/sky/sky_logging.py
 """Logging configuration for vLLM."""
 import logging
+from logging.handlers import RotatingFileHandler
 import sys
+from pythonjsonlogger import jsonlogger
 
 _FORMAT = "%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s"
 _DATE_FORMAT = "%m-%d %H:%M:%S"
@@ -34,6 +36,12 @@ def _setup_logger():
         _default_handler.flush = sys.stdout.flush  # type: ignore
         _default_handler.setLevel(logging.INFO)
         _root_logger.addHandler(_default_handler)
+
+        file_handler = RotatingFileHandler("logs/elk.log", maxBytes=10000000, backupCount=5)
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(jsonlogger.JsonFormatter())
+        _root_logger.addHandler(file_handler)
+        
     fmt = NewLineFormatter(_FORMAT, datefmt=_DATE_FORMAT)
     _default_handler.setFormatter(fmt)
     # Setting this will avoid the message

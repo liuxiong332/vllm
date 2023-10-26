@@ -251,7 +251,7 @@ def get_requirements() -> List[str]:
 
 
 setuptools.setup(
-    name="vllm",
+    name="vllm-consul",
     version=find_version(get_path("vllm", "__init__.py")),
     author="vLLM Team",
     license="Apache 2.0",

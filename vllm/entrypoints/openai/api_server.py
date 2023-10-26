@@ -6,6 +6,7 @@ import asyncio
 import json
 import time
 from http import HTTPStatus
+import os
 from typing import AsyncGenerator, Dict, List, Optional, Tuple, Union
 
 import fastapi
@@ -16,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from packaging import version
 
+from vllm.entrypoints.consul_registry import ConsulClient
 from vllm.engine.arg_utils import AsyncEngineArgs
 from vllm.engine.async_llm_engine import AsyncLLMEngine
 from vllm.entrypoints.openai.protocol import (
@@ -619,6 +621,11 @@ if __name__ == "__main__":
                               tokenizer_mode=engine_args.tokenizer_mode,
                               trust_remote_code=engine_args.trust_remote_code)
 
+    @app.on_event('startup')
+    async def register_server():
+        server_name = os.getenv("SERVER_NAME") or "vllm-openai-server"
+        ConsulClient().register(server_name, args.port)
+    
     uvicorn.run(app,
                 host=args.host,
                 port=args.port,
