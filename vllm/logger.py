@@ -5,6 +5,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 import sys
 from pythonjsonlogger import jsonlogger
+import os
 
 _FORMAT = "%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s"
 _DATE_FORMAT = "%m-%d %H:%M:%S"
@@ -37,11 +38,12 @@ def _setup_logger():
         _default_handler.setLevel(logging.INFO)
         _root_logger.addHandler(_default_handler)
 
+        os.makedirs("logs", exist_ok=True)
         file_handler = RotatingFileHandler("logs/elk.log", maxBytes=10000000, backupCount=5)
         file_handler.setLevel(logging.INFO)
-        file_handler.setFormatter(jsonlogger.JsonFormatter())
+        file_handler.setFormatter(jsonlogger.JsonFormatter("%(asctime)s %(levelname)s %(filename)s %(funcName)s %(lineno)d %(name)s %(message)s"))
         _root_logger.addHandler(file_handler)
-        
+
     fmt = NewLineFormatter(_FORMAT, datefmt=_DATE_FORMAT)
     _default_handler.setFormatter(fmt)
     # Setting this will avoid the message
