@@ -36,7 +36,7 @@ from vllm.utils import random_uuid
 try:
     import fastchat
     from fastchat.conversation import Conversation, SeparatorStyle
-    from fastchat.model.model_adapter import get_conversation_template
+    from fastchat.model.model_adapter import get_conversation_template, get_conv_template
     _fastchat_available = True
 except ImportError:
     _fastchat_available = False
@@ -82,7 +82,10 @@ async def get_gen_prompt(request) -> str:
             f"fastchat version is low. Current version: {fastchat.__version__} "
             "Please upgrade fastchat to use: `$ pip install -U fschat`")
 
-    conv = get_conversation_template(request.model)
+    if "causallm" in request.model.lower():
+        conv = get_conv_template("qwen-7b-chat")
+    else:
+        conv = get_conversation_template(request.model)
     conv = Conversation(
         name=conv.name,
         system_template=conv.system_template,
