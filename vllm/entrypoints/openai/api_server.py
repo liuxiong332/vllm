@@ -624,7 +624,10 @@ if __name__ == "__main__":
     @app.on_event('startup')
     async def register_server():
         server_name = os.getenv("SERVER_NAME") or "vllm-openai-server"
-        ConsulClient().register(server_name, args.port)
+        try:
+            await ConsulClient().register(server_name, args.port)
+        except Exception as e:
+            logger.error(f"Failed to register server: {e}")
     
     uvicorn.run(app,
                 host=args.host,
